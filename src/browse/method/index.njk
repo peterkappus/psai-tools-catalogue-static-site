@@ -1,0 +1,34 @@
+---
+pagination:
+  data: tools.pages.indexByAiMethod
+  size: 1
+  alias: listing
+permalink: "{{ listing.permalink }}index.html"
+layout: layouts/base.njk
+title: Browse by AI method
+eleventyComputed:
+  pagePath: "{{ listing.permalink }}"
+  breadcrumbs:
+    - text: Home
+      href: /
+    - text: Browse by AI method
+      href: /browse/by-ai-method/
+---
+
+<h1 class="govuk-heading-xl">Browse by AI method</h1>
+<p class="govuk-body app-muted">Methods are split on commas and synonyms are normalised where possible.</p>
+
+{% include "partials/browse-tabs.njk" %}
+
+<ul class="govuk-list">
+  {% for m in listing.entries %}
+    <li>
+      <a class="govuk-link" href="/browse/by-ai-method/{{ m.slug }}/">{{ m.name }}</a>
+      <span class="app-list-count">({{ m.tools | length }})</span>
+    </li>
+  {% endfor %}
+</ul>
+
+{% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-ai-method/" } %}
+{% include "partials/pager.njk" %}
+

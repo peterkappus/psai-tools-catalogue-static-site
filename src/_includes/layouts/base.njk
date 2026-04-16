@@ -1,0 +1,192 @@
+{% extends "govuk/template.njk" %}
+
+{% from "govuk/components/header/macro.njk" import govukHeader %}
+{% from "govuk/components/footer/macro.njk" import govukFooter %}
+{% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner %}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+{% from "govuk/macros/logo.njk" import govukLogo %}
+
+{% set pageTitle = title or site.serviceName %}
+
+{% block head %}
+  {{ super() }}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/assets/css/app.css">
+
+  {# Placeholder for GA4 tagging (set site.ga4MeasurementId in src/_data/site.js) #}
+  {% if site.ga4MeasurementId %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.ga4MeasurementId }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ site.ga4MeasurementId }}');
+    </script>
+  {% endif %}
+{% endblock %}
+
+{% block bodyStart %}
+  {{ super() }}
+
+  {# The banner is shown/hidden at runtime based on cookie preferences. #}
+  {{ govukCookieBanner({
+    ariaLabel: "Cookies on " + site.serviceName,
+    messages: [
+      {
+        headingText: "Cookies on " + site.serviceName,
+        text: "We use some essential cookies to make this service work. We’d also like to use analytics cookies so we can understand how you use the service and make improvements.",
+        actions: [
+          { text: "Accept analytics cookies", type: "button", name: "cookies", value: "accept" },
+          { text: "Reject analytics cookies", type: "button", name: "cookies", value: "reject" },
+          { text: "View cookies", href: "/about/#cookies" }
+        ]
+      }
+      
+    ]
+  }) }}
+{% endblock %}
+
+{% block header %}
+  <div class="govuk-header" role="banner" data-module="govuk-header">
+    <div class="govuk-header__container govuk-width-container">
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-two-thirds">
+          <div class="govuk-header__logo">
+            <a href="https://www.gov.uk/" class="govuk-header__homepage-link">
+            {{ govukLogo({
+              classes: "govuk-header__logotype",
+              ariaLabelText: "GOV.UK"
+            }) }}
+            </a>
+          </div>
+          </div>
+          <div class="govuk-grid-column-one-third">
+<div class="govuk-header__content app-header__content" style="padding: 0.6rem 0">
+        <form  class="app-header__search" action="/search/" method="get">
+          <label class="govuk-visually-hidden" for="global-search-q">Search</label>
+          <input class="govuk-input app-header__search-input" id="global-search-q" name="q" type="search" spellcheck="false" autocomplete="off">
+          <button class="govuk-button app-header__search-button" data-module="govuk-button" type="submit">Search</button>
+        </form>
+    </div>
+            </div>
+            </div>
+
+
+      
+    
+    </div>
+  </div>
+
+  {{ govukServiceNavigation({
+    serviceName: "AI Tools Catalogue",
+    serviceUrl: "/",
+    navigation: [
+      { href: "/about/", text: "About", active: pagePath == "/about/" }
+    ]
+  }) }}
+
+  
+{% endblock %}
+
+{% block beforeContent %}
+
+  {{ govukPhaseBanner({
+    tag: { text: "Beta" },
+    html: "This is a catalogue of AI tools in use across the public sector."
+  }) }}
+
+  {# Breadcrumbs: prefer explicit `breadcrumbs` array; otherwise allow scalar breadcrumb fields. #}
+  {% set breadcrumbItems = breadcrumbs %}
+  {% if (not breadcrumbItems) and breadcrumbSectionText and breadcrumbSectionHref and breadcrumbCurrentText and breadcrumbCurrentHref %}
+    {% set breadcrumbItems = [
+      { text: "Home", href: "/" },
+      { text: breadcrumbSectionText, href: breadcrumbSectionHref },
+      { text: breadcrumbCurrentText, href: breadcrumbCurrentHref }
+    ] %}
+  {% endif %}
+
+  {% if breadcrumbItems %}
+    {{ govukBreadcrumbs({ items: breadcrumbItems }) }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-width-container">
+    {{ content | safe }}
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {{ govukFooter({
+    meta: {
+      items: [
+        { href: "/about/", text: "About the AI Tools Catalogue" }
+      ]
+    }
+  }) }}
+{% endblock %}
+
+{% block bodyEnd %}
+  <script src="/assets/govuk/govuk-frontend.min.js"></script>
+  <script>window.GOVUKFrontend && window.GOVUKFrontend.initAll()</script>
+  <script>
+    (function () {
+      function readCookie(name) {
+        var match = document.cookie.match(new RegExp('(^|;\\s*)' + name + '=([^;]*)'));
+        return match ? decodeURIComponent(match[2]) : null;
+      }
+
+      function setCookie(name, value, maxAgeSeconds) {
+        var cookie = name + '=' + encodeURIComponent(value) +
+          '; Path=/' +
+          '; SameSite=Lax';
+        if (location && location.protocol === 'https:') cookie += '; Secure';
+        if (typeof maxAgeSeconds === 'number') cookie += '; Max-Age=' + String(maxAgeSeconds);
+        document.cookie = cookie;
+      }
+
+      function hideBanner(bannerEl) {
+        bannerEl.hidden = true;
+      }
+
+      var banner = document.querySelector('.govuk-cookie-banner');
+      if (!banner) return;
+
+      // If the user has already set a preference, don't show the banner again.
+      if (readCookie('cookies_preferences_set') === 'true') {
+        hideBanner(banner);
+        return;
+      }
+
+      banner.addEventListener('click', function (e) {
+        var target = e.target;
+        if (!target) return;
+
+        // Buttons in the GOV.UK cookie banner are rendered as <button>.
+        if (target.tagName !== 'BUTTON') return;
+        if (target.name !== 'cookies') return;
+
+        var value = target.value;
+        if (value !== 'accept' && value !== 'reject' && value !== 'hide') return;
+
+        // Only set preferences cookies if the user action permits cookies.
+        // (Reject still sets a preference cookie to remember the choice.)
+        if (value === 'accept') {
+          setCookie('cookies_policy', JSON.stringify({ essential: true, analytics: true }), 31536000);
+          setCookie('cookies_preferences_set', 'true', 31536000);
+          hideBanner(banner);
+        } else if (value === 'reject') {
+          setCookie('cookies_policy', JSON.stringify({ essential: true, analytics: false }), 31536000);
+          setCookie('cookies_preferences_set', 'true', 31536000);
+          hideBanner(banner);
+        } else if (value === 'hide') {
+          hideBanner(banner);
+        }
+      });
+    })();
+  </script>
+  {{ super() }}
+{% endblock %}
+

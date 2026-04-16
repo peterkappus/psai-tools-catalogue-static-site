@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- for testing: python3 -m http.server -->
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Reverby</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background: #111;
+            color: #eee;
+        }
+
+        body.active {
+            background: #7a0000;
+        }
+
+        #container {
+            padding: 1rem 1rem 3rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 0.75rem 0;
+            font-size: clamp(1.25rem, 3vw, 1.8rem);
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: .75rem;
+            border-radius: 8px;
+            overflow: auto;
+        }
+
+        .status {
+            margin-top: .5rem;
+            font-weight: bold;
+            font-size: .95rem;
+        }
+
+        /* Bars */
+        .bar {
+            height: 3.2rem;
+            background: rgba(0, 50, 255, 0.9);
+            margin-top: 6px;
+            border-radius: 1.6rem;
+            width: 0%;
+            transition: width 60ms linear;
+        }
+
+        /* Controls */
+        #controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: .75rem;
+        }
+
+        #reverbButtons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        #controls button {
+            padding: 1rem 1.1rem;
+            border-radius: 1.4rem;
+            border: none;
+            background: #333;
+            color: #eee;
+            font-size: 1.1rem;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            flex: 1 1 calc(10% - 0.5rem);
+            min-width: 3.2rem;
+        }
+
+        #controls button:focus {
+            outline: none;
+        }
+
+        #muteBtn {
+            flex: 1 1 100%;
+            background: #660000;
+        }
+
+        .actionBtn {
+            flex: 1 1 48%;
+            background: #444;
+        }
+
+        .flash {
+            box-shadow: 0 0 0 3px rgba(80, 160, 255, 0.8);
+            transform: translateY(-2px);
+            transition: box-shadow 200ms ease, transform 200ms ease;
+        }
+
+        /* Mobile */
+        @media(max-width:640px) {
+            #controls button {
+                flex: 1 1 calc(25% - .5rem);
+                font-size: 1.05rem;
+                padding: .9rem 1rem;
+            }
+
+            .bar {
+                height: 2.8rem;
+                border-radius: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+
+        <h1 style="font-size: 3rem">Cistern</h1>
+
+        <div id="controls">
+            <div id="reverbButtons"></div>
+
+            <button id="muteBtn">Toggle Mic</button>
+
+            <!-- NEW BUTTONS -->
+            <button id="removeBtn" class="actionBtn">Remove (K)</button>
+            <button id="saveBtn" class="actionBtn">Save (S)</button>
+        </div>
+
+        <details>
+            <summary style="margin-bottom: 0.5rem">Help</summary>
+            <pre>
+0–9 buttons/keys → Create new reverb (auto-unmutes mic)
+Double-press same index → Toggle mic (no new reverb)
+Space → Toggle mic for current reverb
+K     → Truncate oldest non-truncating reverb
+S     → Save stereo WAV
+
+Bars show wet output RMS (post ER → widening → convolver → shelf → gain)
+Trailing reverbs auto-remove after being quiet for >100ms.
+
+(No dry monitoring. No wet/dry control.)
+</pre>
+            <div class="status" id="micStatus">Mic: OFF</div>
+            <div class="status" id="reverbStatus">Active reverbs: 0</div>
+        </details>
+
+        <div id="bars"></div>
+
+        <p style="margin-top: 4rem; color: #999;">With thanks to David Hykes and Paul Horn.</p>
+        <script>
+            /* ============================================================
+               CONFIG
+               ============================================================ */
+            const minDecay = 2;
+            const maxDecay = 180;
+
+            const enableWidening = false;
+            const enableEarlyReflections = false;
+
+            const haasDelayMs = 12;
+            const erTapTimes = [0.007, 0.011, 0.013, 0.017, 0.019, 0.023, 0.029, 0.031];
+            const erGainLevel = 0.3;
+
+            const doublePressWindowMs = 3000;
+            const vuSmoothingTau = 4;
+            const removeThresholdRatio = 0.02;
+            const removeHoldSeconds = 2;
+
+            /* ============================================================
+               STATE
+               ============================================================ */
+            let audioCtx, sampleRate;
+            let micStream, micSource;
+            let masterGain, recordGain, recorderNode;
+            let micActive = false;
+
+            let activeReverb = null;
+            let reverbs = [];
+
+            let recordedL = [];
+            let recordedR = [];
+
+            let lastIndexPressed = null;
+            let lastPressTimeMs = 0;
+
+            const buttonFlashTimers = new Map();
+
+            /* ============================================================
+               INIT AUDIO
+               ============================================================ */
+            async function initAudio() {
+                if (audioCtx) return;
+                audioCtx = new AudioContext();
+                sampleRate = audioCtx.sampleRate;
+
+                const workletCode = `
+    class RecorderProcessor extends AudioWorkletProcessor {
+      process(inputs){
+        const i=inputs[0];
+        if(!i||i.length<2) return true;
+        this.port.postMessage({l:new Float32Array(i[0]), r:new Float32Array(i[1])});
+        return true;
+      }
+    }
+    registerProcessor('recorder-processor',RecorderProcessor);
+    `;
+                const blob = new Blob([workletCode], { type: "application/javascript" });
+                const url = URL.createObjectURL(blob);
+                await audioCtx.audioWorklet.addModule(url);
+                URL.revokeObjectURL(url);
+
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                micSource = audioCtx.createMediaStreamSource(micStream);
+
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0.9;
+
+                recordGain = audioCtx.createGain();
+                recordGain.gain.value = 1;
+
+                recorderNode = new AudioWorkletNode(audioCtx, "recorder-processor", {
+                    numberOfInputs: 1, numberOfOutputs: 1, channelCount: 2
+                });
+                recorderNode.port.onmessage = e => {
+                    recordedL.push(e.data.l);
+                    recordedR.push(e.data.r);
+                };
+
+                masterGain.connect(recordGain);
+                recordGain.connect(recorderNode);
+                recordGain.connect(audioCtx.destination);
+            }
+
+            async function ensureAudio() {
+                if (!audioCtx) await initAudio();
+                await audioCtx.resume();
+            }
+
+            /* ============================================================
+               UI
+               ============================================================ */
+            function updateUI() {
+                document.getElementById("micStatus").textContent =
+                    "Mic: " + (micActive ? "ON" : "OFF");
+                document.getElementById("reverbStatus").textContent =
+                    "Active reverbs: " + reverbs.length;
+            }
+
+            /* ============================================================
+               HIGHLIGHT NUMBER BUTTON ON KEY PRESS
+               ============================================================ */
+            function flashButton(i) {
+                const btns = document.querySelectorAll("#reverbButtons button");
+                const btn = btns[i]; if (!btn) return;
+
+                btn.classList.add("flash");
+                if (buttonFlashTimers.has(i)) clearTimeout(buttonFlashTimers.get(i));
+                const t = setTimeout(() => btn.classList.remove("flash"), 10000);
+                buttonFlashTimers.set(i, t);
+            }
+
+            /* ============================================================
+               INIT BUTTONS
+               ============================================================ */
+            function initButtons() {
+                const container = document.getElementById("reverbButtons");
+                for (let i = 0; i < 10; i++) {
+                    const b = document.createElement("button");
+                    b.textContent = i;
+                    b.onclick = async () => { await handleIndexPress(i); flashButton(i); };
+                    container.appendChild(b);
+                }
+
+                document.getElementById("muteBtn").onclick = toggleMic;
+                document.getElementById("removeBtn").onclick = fadeOldest;
+                document.getElementById("saveBtn").onclick = saveWav;
+            }
+
+            /* ============================================================
+               TOGGLE MIC
+               ============================================================ */
+            async function toggleMic() {
+                await ensureAudio();
+                micActive = !micActive;
+
+                if (activeReverb) {
+                    activeReverb.micGain.gain.setTargetAtTime(
+                        micActive ? 1 : 0,
+                        audioCtx.currentTime, 0.03
+                    );
+                }
+
+                if (!reverbs.length && micActive) {
+                    const mid = minDecay + (5 / 9) * (maxDecay - minDecay);
+                    await createReverb(mid);
+                }
+
+                document.body.classList.toggle("active", micActive);
+                updateUI();
+            }
+
+            /* ============================================================
+               HANDLE NUMBER BUTTON / KEY PRESS
+               ============================================================ */
+            async function handleIndexPress(index) {
+                const now = performance.now();
+                const isDouble = (lastIndexPressed === index) &&
+                    (now - lastPressTimeMs <= doublePressWindowMs);
+                lastIndexPressed = index;
+                lastPressTimeMs = now;
+
+                if (isDouble) {
+                    await toggleMic();
+                    return;
+                }
+
+                await ensureAudio();
+                const t = index / 9;
+                const ratio = maxDecay / minDecay;
+                const decay = minDecay * Math.pow(ratio, t);
+
+                await createReverb(decay);
+                if (!micActive) await toggleMic();
+            }
+
+            /* ============================================================
+               CREATE REVERB
+               ============================================================ */
+            async function createReverb(decay) {
+                await ensureAudio();
+
+                // IR generation
+                const length = Math.max(1, Math.floor(sampleRate * decay));
+                const impulse = audioCtx.createBuffer(2, length, sampleRate);
+                for (let c = 0; c < 2; c++) {
+                    const d = impulse.getChannelData(c);
+                    for (let i = 0; i < length; i++) {
+                        const t = i / length;
+                        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 3) * Math.sqrt(t);
+                    }
+                }
+
+                const convolver = audioCtx.createConvolver();
+                convolver.buffer = impulse;
+
+                const shelf = audioCtx.createBiquadFilter();
+                shelf.type = "highshelf";
+                shelf.frequency.value = 3000;
+                shelf.gain.value = 3;
+
+                const gain = audioCtx.createGain();
+                gain.gain.value = 1;
+
+                convolver.connect(shelf);
+                shelf.connect(gain);
+                gain.connect(masterGain);
+
+                const micGain = audioCtx.createGain();
+                micGain.gain.value = micActive ? 1 : 0;
+                micSource.connect(micGain);
+
+                let erOut = micGain;
+                if (enableEarlyReflections) {
+                    const erSum = audioCtx.createGain();
+                    erSum.gain.value = erGainLevel;
+                    erOut = erSum;
+                    for (const dt of erTapTimes) {
+                        const d = audioCtx.createDelay(0.1);
+                        d.delayTime.value = dt;
+                        micGain.connect(d); d.connect(erSum);
+                    }
+                }
+
+                const L = audioCtx.createGain(), R = audioCtx.createGain();
+                erOut.connect(L); erOut.connect(R);
+
+                const merger = audioCtx.createChannelMerger(2);
+                if (enableWidening) {
+                    const haas = audioCtx.createDelay(0.05);
+                    haas.delayTime.value = haasDelayMs / 1000;
+                    R.connect(haas);
+                    L.connect(merger, 0, 0);
+                    haas.connect(merger, 0, 1);
+                } else {
+                    L.connect(merger, 0, 0);
+                    R.connect(merger, 0, 1);
+                }
+                merger.connect(convolver);
+
+                const analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 1024;
+                gain.connect(analyser);
+
+                if (activeReverb) {
+                    try { micSource.disconnect(activeReverb.micGain); } catch { }
+                }
+                activeReverb = { micGain };
+
+                const bar = document.createElement("div");
+                bar.className = "bar";
+                document.getElementById("bars").prepend(bar);
+
+                const rObj = {
+                    decay,
+                    createdAt: audioCtx.currentTime,
+                    micGain, convolver, shelf, gain, analyser,
+                    bar,
+                    removed: false,
+                    barState: { forcedFade: false },
+                    vu: {
+                        tmp: new Float32Array(analyser.fftSize),
+                        rmsSmoothed: 0,
+                        peakRms: 1e-6,
+                        lastT: audioCtx.currentTime,
+                        quietStart: null
+                    }
+                };
+                reverbs.push(rObj);
+                updateUI();
+
+                function vuLoop() {
+                    if (rObj.removed) return;
+                    const now = audioCtx.currentTime;
+                    const dt = Math.max(1 / 120, now - rObj.vu.lastT);
+                    rObj.vu.lastT = now;
+
+                    analyser.getFloatTimeDomainData(rObj.vu.tmp);
+                    let sum = 0; const a = rObj.vu.tmp;
+                    for (let i = 0; i < a.length; i++) sum += a[i] * a[i];
+                    const rmsInst = Math.sqrt(sum / a.length);
+
+                    const alpha = Math.exp(-dt / vuSmoothingTau);
+                    rObj.vu.rmsSmoothed = alpha * rObj.vu.rmsSmoothed + (1 - alpha) * rmsInst;
+
+                    if (rObj.vu.rmsSmoothed > rObj.vu.peakRms)
+                        rObj.vu.peakRms = rObj.vu.rmsSmoothed;
+
+                    const ratio = rObj.vu.rmsSmoothed / Math.max(rObj.vu.peakRms, 1e-6);
+                    const clamped = Math.min(1, ratio);
+
+                    rObj.bar.style.width = (clamped * 100) + "%";
+
+                    if (clamped < removeThresholdRatio) {
+                        if (!rObj.vu.quietStart) rObj.vu.quietStart = now;
+                        if (now - rObj.vu.quietStart >= removeHoldSeconds) {
+                            removeReverb(rObj);
+                            return;
+                        }
+                    } else {
+                        rObj.vu.quietStart = null;
+                    }
+
+                    requestAnimationFrame(vuLoop);
+                }
+                requestAnimationFrame(vuLoop);
+            }
+
+            /* ============================================================
+               REMOVE REVERB
+               ============================================================ */
+            function removeReverb(rObj) {
+                if (rObj.removed) return;
+                rObj.removed = true;
+
+                const idx = reverbs.indexOf(rObj);
+                if (idx !== -1) reverbs.splice(idx, 1);
+
+                try { micSource.disconnect(rObj.micGain); } catch { }
+                try { rObj.convolver.disconnect(); } catch { }
+                try { rObj.shelf.disconnect(); } catch { }
+                try { rObj.gain.disconnect(); } catch { }
+                try { rObj.analyser.disconnect(); } catch { }
+
+                rObj.bar.remove();
+                if (activeReverb && activeReverb.micGain === rObj.micGain)
+                    activeReverb = null;
+
+                updateUI();
+            }
+
+            /* ============================================================
+               FADE OLDEST
+               ============================================================ */
+            function fadeOldest() {
+                if (!reverbs.length) return;
+                const target = reverbs.find(r => !r.barState.forcedFade);
+                if (!target) return;
+
+                const now = audioCtx.currentTime;
+                const elapsed = now - target.createdAt;
+                const naturalLife = target.decay * 1.5;
+                const remaining = Math.max(0.1, naturalLife - elapsed);
+                const fadeTime = 30; //Math.min(5,Math.max(0.4,remaining/4));
+
+                target.barState.forcedFade = true;
+
+                const g = target.gain.gain;
+                g.cancelScheduledValues(now);
+                g.setValueAtTime(g.value, now);
+                g.exponentialRampToValueAtTime(0.0001, now + fadeTime);
+            }
+
+            /* ============================================================
+               SAVE WAV
+               ============================================================ */
+            function saveWav() {
+                // Compute the total number of audio frames across all recorded blocks
+                const length = recordedL.reduce((s, b) => s + b.length, 0);
+
+                // Allocate a buffer large enough for:
+                //  - 44 bytes WAV header
+                //  - (length frames × 4 bytes per frame) because 16‑bit stereo = 2 channels × 2 bytes
+                const buffer = new ArrayBuffer(44 + length * 4);
+
+                // Wrap the buffer with a DataView so we can write int/uint values at specific offsets
+                const view = new DataView(buffer);
+
+                // Helper to write ASCII strings (like "RIFF", "WAVE") byte-by-byte
+                const write = (offset, string) =>
+                    [...string].forEach((char, index) => view.setUint8(offset + index, char.charCodeAt(0)));
+
+
+                // ===== WAV HEADER =====
+
+                // Write the RIFF container identifier
+                write(0, "RIFF");
+
+                // Chunk size: 36 + data size
+                // data size = length * 4 bytes (stereo, 16‑bit samples → 4 bytes per frame)
+                view.setUint32(4, 36 + length * 4, true);
+
+                // File format "WAVE"
+                write(8, "WAVEfmt ");
+
+                // Subchunk1 size (PCM header) = 16 bytes
+                view.setUint32(16, 16, true);
+
+                // Audio format 1 = PCM (linear quantized)
+                view.setUint16(20, 1, true);
+
+                // Number of channels: 2 for stereo
+                view.setUint16(22, 2, true);
+
+                // Sample rate (Hz)
+                view.setUint32(24, sampleRate, true);
+
+                // Byte rate = sampleRate × blockAlign (blockAlign=4 bytes/frame for stereo 16-bit)
+                view.setUint32(28, sampleRate * 4, true);
+
+                // Block align = 4 bytes per frame (2 channels × 2 bytes per sample)
+                view.setUint16(32, 4, true);
+
+                // Bits per sample = 16
+                view.setUint16(34, 16, true);
+
+                // "data" chunk ID
+                write(36, "data");
+
+                // Data chunk size in bytes
+                view.setUint32(40, length * 4, true);
+
+
+                // ===== SAMPLE DATA =====
+
+                let o = 44; // o = offset; start after the 44-byte header
+
+                // Iterate through each recorded block
+                for (let i = 0; i < recordedL.length; i++) {
+                    const L = recordedL[i], R = recordedR[i];
+
+                    // Write interleaved stereo samples L,R,L,R...
+                    for (let j = 0; j < L.length; j++) {
+
+                        // Convert float [-1,1] to signed 16‑bit and write little‑endian
+                        view.setInt16(o, L[j] * 0x7fff, true); o += 2;
+                        view.setInt16(o, R[j] * 0x7fff, true); o += 2;
+                    }
+                }
+
+
+                // ===== DOWNLOAD THE FILE =====
+
+                // Create a temporary <a> download link with the WAV blob
+                const anchor = document.createElement("a");
+                anchor.href = URL.createObjectURL(new Blob([view], { type: "audio/wav" }));
+
+                // Suggested download filename
+                anchor.download = "reverb_stereo.wav";
+
+                // Trigger download
+                anchor.click();
+            }
+
+            /* ============================================================
+               KEYBOARD
+               ============================================================ */
+            window.addEventListener("keydown", async e => {
+                const k = e.key;
+                if (e.code === "Space") {
+                    e.preventDefault();
+                    await toggleMic();
+                    return;
+                }
+                if (k === "k" || k === "K") { fadeOldest(); return; }
+                if (k === "s" || k === "S") { saveWav(); return; }
+
+                if (k >= "0" && k <= "9") {
+                    const idx = Number(k);
+                    await handleIndexPress(idx);
+                    flashButton(idx);
+                    return;
+                }
+            });
+
+            /* ============================================================
+               INIT
+               ============================================================ */
+            initButtons();
+            updateUI();
+
+        </script>
+    </div>
+</body>
+
+</html>

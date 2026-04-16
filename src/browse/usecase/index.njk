@@ -1,0 +1,33 @@
+---
+pagination:
+  data: tools.pages.indexByUsecase
+  size: 1
+  alias: listing
+permalink: "{{ listing.permalink }}index.html"
+layout: layouts/base.njk
+title: Browse by usecase
+eleventyComputed:
+  pagePath: "{{ listing.permalink }}"
+  breadcrumbs:
+    - text: Home
+      href: /
+    - text: Browse by usecase
+      href: /browse/by-usecase/
+---
+
+<h1 class="govuk-heading-xl">Browse by usecase</h1>
+
+{% include "partials/browse-tabs.njk" %}
+
+<ul class="govuk-list">
+  {% for u in listing.entries %}
+    <li>
+      <a class="govuk-link" href="/browse/by-usecase/{{ u.slug }}/">{{ u.name }}</a>
+      <span class="app-list-count">({{ u.tools | length }})</span>
+    </li>
+  {% endfor %}
+</ul>
+
+{% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-usecase/" } %}
+{% include "partials/pager.njk" %}
+

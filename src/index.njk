@@ -1,0 +1,54 @@
+---
+layout: layouts/base.njk
+title: AI tools catalogue
+pagePath: /
+breadcrumbs:
+  - text: Home
+    href: /
+---
+
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+<h1 class="govuk-heading-xl">{{ site.serviceName }}</h1>
+
+{{ govukNotificationBanner({
+  type: "important",
+  titleText: "About this catalogue",
+  html: "<p class='govuk-notification-banner__heading'>Browse AI tools in use across the public sector. Each entry links to a source URL for details.</p>"
+}) }}
+
+{% set countText = tools.meta.count ~ " tools" %}
+
+<div class="govuk-tabs" data-module="govuk-tabs">
+  <h2 class="govuk-tabs__title">Browse the catalogue</h2>
+  <ul class="govuk-tabs__list">
+    <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+      <a class="govuk-tabs__tab" href="/tools/">All tools</a>
+    </li>
+    <li class="govuk-tabs__list-item">
+      <a class="govuk-tabs__tab" href="/browse/by-ai-method/">By AI method</a>
+    </li>
+    <li class="govuk-tabs__list-item">
+      <a class="govuk-tabs__tab" href="/browse/by-organisation/">By organisation</a>
+    </li>
+    <li class="govuk-tabs__list-item">
+      <a class="govuk-tabs__tab" href="/browse/by-origin/">By origin</a>
+    </li>
+    <li class="govuk-tabs__list-item">
+      <a class="govuk-tabs__tab" href="/browse/by-status/">By status</a>
+    </li>
+    <li class="govuk-tabs__list-item">
+      <a class="govuk-tabs__tab" href="/browse/by-usecase/">By usecase</a>
+    </li>
+  </ul>
+
+  <div class="govuk-tabs__panel">
+    <p class="govuk-body">There are {{ countText }} in this catalogue.</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li><a class="govuk-link" href="/tools/">All tools (newest first)</a></li>
+      <li><a class="govuk-link" href="/tools/a-z/">All tools (A to Z)</a></li>
+    </ul>
+    <p class="govuk-body">Browse by category using the tabs above.</p>
+  </div>
+</div>
+

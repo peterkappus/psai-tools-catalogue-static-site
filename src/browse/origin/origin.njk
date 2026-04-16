@@ -1,0 +1,26 @@
+---
+pagination:
+  data: tools.pages.byOrigin
+  size: 1
+  alias: listing
+permalink: "{{ listing.permalink }}index.html"
+layout: layouts/base.njk
+title: "{{ listing.facetName }}"
+eleventyComputed:
+  pagePath: "{{ listing.permalink }}"
+  breadcrumbSectionText: "Browse by origin"
+  breadcrumbSectionHref: "/browse/by-origin/"
+  breadcrumbCurrentText: "{{ listing.facetName }}"
+  breadcrumbCurrentHref: "/browse/by-origin/{{ listing.facetSlug }}/"
+---
+<h1 class="govuk-heading-xl">{{ listing.facetName }}</h1>
+<p class="govuk-body app-muted">{{ listing.totalTools }} tools</p>
+
+{% include "partials/browse-tabs.njk" %}
+
+{% set toolsList = listing.tools %}
+{% include "partials/tool-table.njk" %}
+
+{% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-origin/" ~ listing.facetSlug ~ "/" } %}
+{% include "partials/pager.njk" %}
+

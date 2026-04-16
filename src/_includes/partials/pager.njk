@@ -1,0 +1,31 @@
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
+
+{% if pager and pager.totalPages and pager.totalPages > 1 %}
+  {% set prevHref = "" %}
+  {% set nextHref = "" %}
+
+  {% if pager.pageNumber > 1 %}
+    {% if pager.pageNumber - 1 == 1 %}
+      {% set prevHref = pager.basePermalink %}
+    {% else %}
+      {% set prevHref = pager.basePermalink ~ "page/" ~ (pager.pageNumber - 1) ~ "/" %}
+    {% endif %}
+  {% endif %}
+
+  {% if pager.pageNumber < pager.totalPages %}
+    {% set nextHref = pager.basePermalink ~ "page/" ~ (pager.pageNumber + 1) ~ "/" %}
+  {% endif %}
+
+  {% set items = pager.totalPages | paginationItems(pager.pageNumber, pager.basePermalink) %}
+
+  {% if prevHref and nextHref %}
+    {{ govukPagination({ previous: { href: prevHref }, next: { href: nextHref }, items: items }) }}
+  {% elseif prevHref %}
+    {{ govukPagination({ previous: { href: prevHref }, items: items }) }}
+  {% elseif nextHref %}
+    {{ govukPagination({ next: { href: nextHref }, items: items }) }}
+  {% else %}
+    {{ govukPagination({ items: items }) }}
+  {% endif %}
+{% endif %}
+

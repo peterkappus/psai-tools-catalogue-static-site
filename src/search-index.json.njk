@@ -1,0 +1,32 @@
+---
+permalink: /assets/search-index.json
+---
+{
+  "lookups": {
+    "organisationSlugByName": {{ tools.facetLookups.organisationSlugByName | dump | safe }},
+    "statusSlugByName": {{ tools.facetLookups.statusSlugByName | dump | safe }}
+  },
+  "items": [
+  {% for t in tools.items %}
+    {
+      "tool_name": {{ t.tool_name | dump | safe }},
+      "organisation": {{ t.organisation | dump | safe }},
+      "status": {{ t.status | dump | safe }},
+      "origin": {{ t.origin | dump | safe }},
+      "usecase": {{ t.usecase | dump | safe }},
+      "ai_methods": {{ t.ai_methods | dump | safe }},
+      "date_added": {{ t.date_added | dump | safe }},
+      "date_added_iso": {{ t.date_added_iso | dump | safe }},
+      "benefits": {{ t.benefits | dump | safe }},
+      "owning_team": {{ t.owning_team | dump | safe }},
+      "source_note": {{ t.source_note | dump | safe }},
+      "source_url": {{ t.source_url | dump | safe }},
+      "email": {{ t.email | dump | safe }},
+      "scrape_date": {{ t.scrape_date | dump | safe }},
+      "url": {{ ("/tools/" ~ t.slug ~ "/") | dump | safe }},
+      "rowText": {{ (t.ai_method ~ " " ~ (t.ai_methods | join(" ")) ~ " " ~ t.benefits ~ " " ~ t.date_added ~ " " ~ t.email ~ " " ~ t.organisation ~ " " ~ t.origin ~ " " ~ t.owning_team ~ " " ~ t.scrape_date ~ " " ~ t.source_note ~ " " ~ t.source_url ~ " " ~ t.status ~ " " ~ t.tool_name ~ " " ~ t.usecase) | lower | dump | safe }}
+    }{% if not loop.last %},{% endif %}
+  {% endfor %}
+  ]
+}
+

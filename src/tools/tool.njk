@@ -1,0 +1,104 @@
+---
+pagination:
+  data: tools.items
+  size: 1
+  alias: tool
+permalink: "tools/{{ tool.slug }}/index.html"
+layout: layouts/base.njk
+title: "{{ tool.tool_name }}"
+eleventyComputed:
+  pagePath: "/tools/{{ tool.slug }}/"
+  breadcrumbs:
+    - text: Home
+      href: /
+    - text: All tools
+      href: /tools/
+    - text: "{{ tool.tool_name }}"
+      href: "/tools/{{ tool.slug }}/"
+---
+
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+
+      <div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+
+
+<h1 class="govuk-heading-xl">{{ tool.tool_name }}</h1>
+
+{% if tool.benefits %}
+ <h2 class="govuk-heading-m">Benefits</h2>
+  <p class="govuk-body govuk-!-font-size-19">{{ tool.benefits }}</p>
+{% endif %}
+
+<p class="govuk-body">
+  {% if tool.source_url %}
+    <a class="govuk-link" target="_blank" href="{{ tool.source_url }}">View source URL for details</a>
+  {% endif %}
+</p>
+
+<h2 class="govuk-heading-m">Details</h2>
+
+{% set methodHtml = "" %}
+{% for m in tool.ai_methods %}
+  {% set methodSlug = m | slug %}
+  {% set methodHtml = methodHtml + ("<a class='govuk-tag' href='/browse/by-ai-method/" ~ methodSlug ~ "/'>" ~ (m | escape) ~ "</a>") %}
+  {% if not loop.last %}{% set methodHtml = methodHtml + " " %}{% endif %}
+{% endfor %}
+
+{% set sourceUrlHtml = "" %}
+{% if tool.source_url %}
+  {% set sourceUrlHtml = "<a class='govuk-link' target='_blank' href='" ~ tool.source_url ~ "'>" ~ tool.source_url ~ "</a>" %}
+{% endif %}
+
+{% set orgSlug = tools.facetLookups.organisationSlugByName[tool.organisation] %}
+{% set originSlug = tools.facetLookups.originSlugByName[tool.origin] %}
+{% set statusSlug = tools.facetLookups.statusSlugByName[tool.status] %}
+{% set usecaseSlug = tools.facetLookups.usecaseSlugByName[tool.usecase] %}
+
+{% set orgHtml = tool.organisation %}
+{% if orgSlug %}
+  {% set orgHtml = "<a class='govuk-link' href='/browse/by-organisation/" ~ orgSlug ~ "/'>" ~ (tool.organisation | escape) ~ "</a>" %}
+{% endif %}
+
+{% set originHtml = tool.origin %}
+{% if originSlug %}
+  {% set originHtml = "<a class='govuk-link' href='/browse/by-origin/" ~ originSlug ~ "/'>" ~ (tool.origin | escape) ~ "</a>" %}
+{% endif %}
+
+{% set statusHtml = tool.status %}
+{% if statusSlug %}
+  {% set statusHtml = "<a class='govuk-link' href='/browse/by-status/" ~ statusSlug ~ "/'>" ~ (tool.status | escape) ~ "</a>" %}
+{% endif %}
+
+{% set usecaseHtml = tool.usecase %}
+{% if usecaseSlug %}
+  {% set usecaseHtml = "<a class='govuk-link' href='/browse/by-usecase/" ~ usecaseSlug ~ "/'>" ~ (tool.usecase | escape) ~ "</a>" %}
+{% endif %}
+
+{{ govukSummaryList({
+  rows: [
+    { key: { text: "Tool name" }, value: { text: tool.tool_name } },
+    { key: { text: "Organisation" }, value: { html: orgHtml | safe } },
+    { key: { text: "Status" }, value: { html: statusHtml | safe } },
+    { key: { text: "AI method (as recorded)" }, value: { text: tool.ai_method } },
+    { key: { text: "AI method (normalised tags)" }, value: { html: methodHtml or "" } },
+    { key: { text: "Usecase" }, value: { html: usecaseHtml | safe } },
+    { key: { text: "Origin" }, value: { html: originHtml | safe } },
+    { key: { text: "Owning team" }, value: { text: tool.owning_team } },
+    { key: { text: "Date added" }, value: { text: tool.date_added_iso | formatDateUK } },
+    { key: { text: "Scrape date" }, value: { text: tool.scrape_date } },
+    { key: { text: "Source note" }, value: { html: tool.source_note + " <a href=\"" + tool.source_url + "\" style='font-size: 14px' target=\"_blank\">[Source]</a>" | safe } },
+    { key: { text: "Source URL" }, value: { html: sourceUrlHtml } }
+  ]
+}) }}
+
+</div>
+</div>
+
+<!--
+//removed from the summarylist
+    { key: { text: "Email" }, value: { text: tool.email } },
+    -->

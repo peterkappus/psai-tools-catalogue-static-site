@@ -1,0 +1,34 @@
+---
+layout: layouts/base.njk
+title: Search
+pagePath: /search/
+permalink: /search/index.html
+breadcrumbs:
+  - text: Home
+    href: /
+  - text: Search
+    href: /search/
+---
+
+<h1 class="govuk-heading-xl">Search</h1>
+
+<p class="govuk-body">Search across the full catalogue. Multiple words are treated as an “and” search.</p>
+
+<div class="govuk-form-group">
+  <label class="govuk-label" for="search-q">Search</label>
+  <div class="govuk-input__wrapper">
+    <input class="govuk-input" id="search-q" name="q" type="search" spellcheck="false" autocomplete="off">
+    <button class="govuk-button" data-module="govuk-button" id="search-submit" type="button">Search</button>
+  </div>
+</div>
+
+<div id="search-meta" class="govuk-body app-muted"></div>
+<div id="search-results"></div>
+<div id="search-pagination"></div>
+
+<noscript>
+  <p class="govuk-body">Search requires JavaScript.</p>
+</noscript>
+
+<script src="/assets/js/search.js"></script>
+

@@ -1,0 +1,33 @@
+---
+pagination:
+  data: tools.pages.indexByStatus
+  size: 1
+  alias: listing
+permalink: "{{ listing.permalink }}index.html"
+layout: layouts/base.njk
+title: Browse by status
+eleventyComputed:
+  pagePath: "{{ listing.permalink }}"
+  breadcrumbs:
+    - text: Home
+      href: /
+    - text: Browse by status
+      href: /browse/by-status/
+---
+
+<h1 class="govuk-heading-xl">Browse by status</h1>
+
+{% include "partials/browse-tabs.njk" %}
+
+<ul class="govuk-list">
+  {% for s in listing.entries %}
+    <li>
+      <a class="govuk-link" href="/browse/by-status/{{ s.slug }}/">{{ s.name }}</a>
+      <span class="app-list-count">({{ s.tools | length }})</span>
+    </li>
+  {% endfor %}
+</ul>
+
+{% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-status/" } %}
+{% include "partials/pager.njk" %}
+

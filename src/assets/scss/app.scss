@@ -1,0 +1,48 @@
+@use "govuk-frontend/dist/govuk/index" as govuk with (
+  $govuk-assets-path: "/assets/govuk/assets/",
+  $govuk-suppressed-warnings: ("pre-brand-colour")
+);
+
+// Local tweaks specific to this catalogue.
+.app-muted {
+  color: govuk.govuk-colour("black", $variant: "tint-25");
+}
+
+.app-list-count {
+  color: govuk.govuk-colour("black", $variant: "tint-25");
+  white-space: nowrap;
+}
+
+.app-header__content {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.app-header__search {
+  display: flex;
+  gap: govuk.govuk-spacing(2);
+  align-items: center;
+  margin: 0;
+}
+
+.app-header__search-input {
+  max-width: 260px;
+}
+
+.app-header__search-button {
+  margin-bottom: 0;
+}
+
+@include govuk.govuk-media-query($until: tablet) {
+  .app-header__content {
+    width: 100%;
+    margin-top: govuk.govuk-spacing(2);
+    justify-content: flex-start;
+  }
+
+  .app-header__search-input {
+    max-width: 100%;
+  }
+}
+

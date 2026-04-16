@@ -1,0 +1,27 @@
+---
+pagination:
+  data: tools.pages.byStatus
+  size: 1
+  alias: listing
+permalink: "{{ listing.permalink }}index.html"
+layout: layouts/base.njk
+title: "{{ listing.facetName }}"
+eleventyComputed:
+  pagePath: "{{ listing.permalink }}"
+  breadcrumbSectionText: "Browse by status"
+  breadcrumbSectionHref: "/browse/by-status/"
+  breadcrumbCurrentText: "{{ listing.facetName }}"
+  breadcrumbCurrentHref: "/browse/by-status/{{ listing.facetSlug }}/"
+---
+<h2 class="govuk-caption-xl">Status</h2>
+<h1 class="govuk-heading-xl">{{ listing.facetName.charAt(0).toUpperCase() +  listing.facetName.slice(1)}}</h1>
+<p class="govuk-body app-muted">{{ listing.totalTools }} tools</p>
+
+{% include "partials/browse-tabs.njk" %}
+
+{% set toolsList = listing.tools %}
+{% include "partials/tool-table.njk" %}
+
+{% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-status/" ~ listing.facetSlug ~ "/" } %}
+{% include "partials/pager.njk" %}
+

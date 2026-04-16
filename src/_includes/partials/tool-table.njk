@@ -1,0 +1,43 @@
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{% set rows = [] %}
+{% for tool in toolsList %}
+  {% set orgSlug = tools.facetLookups.organisationSlugByName[tool.organisation] %}
+  {% set statusSlug = tools.facetLookups.statusSlugByName[tool.status] %}
+
+  {% set orgHtml = tool.organisation or "" %}
+  {% if orgSlug and tool.organisation %}
+    {% set orgHtml = '<a class="govuk-link" href="/browse/by-organisation/' ~ orgSlug ~ '/">' ~ (tool.organisation | escape) ~ '</a>' %}
+  {% endif %}
+
+  {% set statusHtml = tool.status or "" %}
+  {% if statusSlug and tool.status %}
+    {% set statusHtml = '<a class="govuk-link" href="/browse/by-status/' ~ statusSlug ~ '/">' ~ (tool.status | escape) ~ '</a>' %}
+  {% endif %}
+
+  {% set methodsHtml = "" %}
+  {% for m in tool.ai_methods %}
+    {% set methodsHtml = methodsHtml + '<a class="govuk-link" href="/browse/by-ai-method/' ~ (m | slug) ~ '/">' ~ (m | escape) ~ '</a>' %}
+    {% if not loop.last %}{% set methodsHtml = methodsHtml + ", " %}{% endif %}
+  {% endfor %}
+
+  {% set rows = (rows.push([
+    { html: '<a class="govuk-link" href="/tools/' ~ tool.slug ~ '/">' ~ (tool.tool_name | escape) ~ '</a>' },
+    { html: orgHtml },
+    { html: statusHtml },
+    { html: methodsHtml },
+    { text: tool.date_added_iso | formatDateUK }
+  ]), rows) %}
+{% endfor %}
+
+{{ govukTable({
+  head: [
+    { text: "Tool" },
+    { text: "Organisation" },
+    { text: "Status" },
+    { text: "AI method" },
+    { text: "Date added" }
+  ],
+  rows: rows
+}) }}
+

@@ -1,0 +1,26 @@
+---
+pagination:
+  data: tools.pages.byOrganisation
+  size: 1
+  alias: listing
+permalink: "{{ listing.permalink }}index.html"
+layout: layouts/base.njk
+title: "{{ listing.facetName }}"
+eleventyComputed:
+  pagePath: "{{ listing.permalink }}"
+  breadcrumbSectionText: "Browse by organisation"
+  breadcrumbSectionHref: "/browse/by-organisation/"
+  breadcrumbCurrentText: "{{ listing.facetName }}"
+  breadcrumbCurrentHref: "/browse/by-organisation/{{ listing.facetSlug }}/"
+---
+<h2 class="govuk-caption-xl">Organisation</h1>
+<h1 class="govuk-heading-xl">{{ listing.facetName }}</h1>
+<p class="govuk-body app-muted">{{ listing.totalTools }} tools</p>
+
+{% include "partials/browse-tabs.njk" %}
+
+{% set toolsList = listing.tools %}
+{% include "partials/tool-table.njk" %}
+
+{% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-organisation/" ~ listing.facetSlug ~ "/" } %}
+{% include "partials/pager.njk" %}

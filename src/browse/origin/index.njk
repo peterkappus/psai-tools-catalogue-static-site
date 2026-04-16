@@ -1,0 +1,33 @@
+---
+pagination:
+  data: tools.pages.indexByOrigin
+  size: 1
+  alias: listing
+permalink: "{{ listing.permalink }}index.html"
+layout: layouts/base.njk
+title: Browse by origin
+eleventyComputed:
+  pagePath: "{{ listing.permalink }}"
+  breadcrumbs:
+    - text: Home
+      href: /
+    - text: Browse by origin
+      href: /browse/by-origin/
+---
+
+<h1 class="govuk-heading-xl">Browse by origin</h1>
+
+{% include "partials/browse-tabs.njk" %}
+
+<ul class="govuk-list">
+  {% for o in listing.entries %}
+    <li>
+      <a class="govuk-link" href="/browse/by-origin/{{ o.slug }}/">{{ o.name }}</a>
+      <span class="app-list-count">({{ o.tools | length }})</span>
+    </li>
+  {% endfor %}
+</ul>
+
+{% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-origin/" } %}
+{% include "partials/pager.njk" %}
+

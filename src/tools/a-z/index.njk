@@ -1,0 +1,32 @@
+---
+pagination:
+  data: tools.pages.allAz
+  size: 1
+  alias: listing
+permalink: "{{ listing.permalink }}index.html"
+layout: layouts/base.njk
+title: All tools (A to Z)
+eleventyComputed:
+  pagePath: "{{ listing.permalink }}"
+  breadcrumbs:
+    - text: Home
+      href: /
+    - text: All tools
+      href: /tools/
+    - text: A to Z
+      href: /tools/a-z/
+---
+
+<h1 class="govuk-heading-xl">All tools (A to Z)</h1>
+<p class="govuk-body app-muted">Sorted by tool name, then organisation.</p>
+
+{% set toolsList = listing.tools %}
+{% include "partials/tool-table.njk" %}
+
+{% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/tools/a-z/" } %}
+{% include "partials/pager.njk" %}
+
+<p class="govuk-body">
+  <a class="govuk-link" href="/tools/">View newest first</a>
+</p>
+
