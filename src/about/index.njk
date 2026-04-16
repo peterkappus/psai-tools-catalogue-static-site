@@ -14,7 +14,13 @@ breadcrumbs:
 
 <h1 class="govuk-heading-xl">About</h1>
 
-<p class="govuk-body">This is a static catalogue of AI tools in use within the public sector. Each entry is a single row from the source CSV.</p>
+<p class="govuk-body">This site provides a catalogue of AI tools being used in the public sector. It's maintained by the AI Enablers team at GDS.</p>
+
+<h2 class="govuk-heading-m" id="cookies">Cookies</h2>
+<p class="govuk-body">This site uses essential cookies to make the service work. It can also use analytics cookies if you accept them in the cookie banner.</p>
+
+<h2 class="govuk-heading-m">Accessibility</h2>
+<p class="govuk-body">This service is designed to meet WCAG 2.2 AA.</p>
 
 <h2 class="govuk-heading-m">Data source</h2>
 
@@ -22,14 +28,8 @@ breadcrumbs:
   <p class="govuk-body">This site was built using a CSV loaded from a remote URL.</p>
   <p class="govuk-body"><a class="govuk-link" href="{{ tools.meta.csvUrl }}">{{ tools.meta.csvUrl }}</a></p>
 {% else %}
-  <p class="govuk-body">This site was built using the CSV stored in this repository.</p>
+  <p class="govuk-body">This site was built using the CSV stored in this repository. You can specify a remote CSV file at build time using an environment variable. Check the README for details.</p>
 {% endif %}
-
-<h2 class="govuk-heading-m" id="cookies">Cookies</h2>
-<p class="govuk-body">This site uses essential cookies to make the service work. It can also use analytics cookies if you accept them in the cookie banner.</p>
-
-<h2 class="govuk-heading-m">Accessibility</h2>
-<p class="govuk-body">This service is designed to meet WCAG 2.2 AA.</p>
 
 </div>
 </div>
