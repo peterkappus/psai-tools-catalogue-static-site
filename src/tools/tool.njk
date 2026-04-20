@@ -44,7 +44,7 @@ eleventyComputed:
 {% set methodHtml = "" %}
 {% for m in tool.ai_methods %}
   {% set methodSlug = m | slug %}
-  {% set methodHtml = methodHtml + ("<a class='govuk-tag' href='/browse/by-ai-method/" ~ methodSlug ~ "/'>" ~ (m | escape) ~ "</a>") %}
+  {% set methodHtml = methodHtml + ("<a class='govuk-tag' style='margin-bottom: 6px' href='/browse/by-ai-method/" ~ methodSlug ~ "/'>" ~ (m | escape) ~ "</a>") %}
   {% if not loop.last %}{% set methodHtml = methodHtml + " " %}{% endif %}
 {% endfor %}
 
