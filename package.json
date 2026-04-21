@@ -5,6 +5,7 @@
   "description": "Static catalogue of AI tools in use within the public sector, built with Eleventy and the GOV.UK Design System.",
   "license": "Crown Copyright",
   "scripts": {
+    "clean": "rm -rf _site dist .cache",
     "serve": "eleventy --serve --incremental",
     "watch:css": "sass --quiet-deps --load-path=. --load-path=node_modules --watch src/assets/scss:_site/assets/css",
     "build:css": "sass --quiet-deps --load-path=. --load-path=node_modules --no-source-map src/assets/scss:dist/assets/css",
