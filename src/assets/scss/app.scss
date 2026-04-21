@@ -1,6 +1,8 @@
+
 @use "govuk-frontend/dist/govuk/index" as govuk with (
   $govuk-assets-path: "/assets/govuk/assets/",
-  $govuk-suppressed-warnings: ("pre-brand-colour")
+  $govuk-suppressed-warnings: ("pre-brand-colour"),
+  $govuk-include-default-font-face: false
 );
 
 // Local tweaks specific to this catalogue.
@@ -46,3 +48,24 @@
   }
 }
 
+// Non‑GOV.UK hosting mode: use a generic sans-serif stack (e.g. Roboto).
+body.app-branding--nongovuk {
+  // GOV.UK Frontend sets font-family on many govuk-* classes; force inheritance.
+ //font-family: "Public sans", "Arial", sans-serif !important;
+ //font-family: "Rethink sans", "Arial", sans-serif !important;
+ font-family: "Schibsted Grotesk", "Arial", sans-serif !important;
+  //font-family: "Roboto", "Arial", sans-serif !important;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body.app-branding--nongovuk [class^="govuk-"],
+body.app-branding--nongovuk [class*=" govuk-"] {
+  font-family: inherit;
+}
+
+
+body.app-branding--nongovuk [class*="product-name"] {
+  font-weight: bold;
+}

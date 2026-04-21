@@ -12,7 +12,7 @@
 
   {% set statusHtml = tool.status or "" %}
   {% if statusSlug and tool.status %}
-    {% set statusHtml = '<a class="govuk-link" href="/browse/by-status/' ~ statusSlug ~ '/">' ~ (tool.status | escape) ~ '</a>' %}
+    {% set statusHtml = '<a class="govuk-link" href="/browse/by-status/' ~ statusSlug ~ '/">' ~ (tool.status | capitalise | escape) ~ '</a>' %}
   {% endif %}
 
   {% set methodsHtml = "" %}

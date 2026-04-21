@@ -11,11 +11,13 @@ breadcrumbs:
 
 <h1 class="govuk-heading-xl">{{ site.serviceName }}</h1>
 
-{{ govukNotificationBanner({
+<p class="govuk-body">Use this tool to browse all known AI tools in use across the public sector. Entries are scraped via a weekly web search. Each entry links to a source URL for details.</p>
+
+<!--{{ govukNotificationBanner({
   type: "important",
   titleText: "About this catalogue",
   html: "<p class='govuk-notification-banner__heading'>Browse AI tools in use across the public sector. Each entry links to a source URL for details.</p>"
-}) }}
+}) }}-->
 
 {% set countText = tools.meta.count ~ " tools" %}
 

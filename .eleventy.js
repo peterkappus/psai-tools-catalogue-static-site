@@ -10,6 +10,7 @@ function slugify(input) {
     .replace(/(^-|-$)/g, "");
 }
 
+
 module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "dist/assets": "assets" });
   eleventyConfig.addPassthroughCopy({ "src/assets/js": "assets/js" });
@@ -45,6 +46,10 @@ module.exports = function (eleventyConfig) {
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
+  });
+
+  eleventyConfig.addFilter("capitalise", (value) => {
+    return String(value).charAt(0).toUpperCase() + String(value).slice(1);
   });
 
   eleventyConfig.addFilter("paginationItems", (totalPages, currentPage, basePermalink) => {

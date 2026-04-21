@@ -9,11 +9,39 @@
 {% from "govuk/macros/logo.njk" import govukLogo %}
 
 {% set pageTitle = title or site.serviceName %}
+{% set useGovukBranding = site.branding and site.branding.useGovukBranding %}
+
+{# Add a body class so CSS can switch font stacks etc. #}
+{% set bodyClasses = bodyClasses or "" %}
+{% if not useGovukBranding %}
+  {% set bodyClasses = (bodyClasses ~ " app-branding--nongovuk") | trim %}
+{% endif %}
+
+{% block pageTitle %}
+  {% set baseTitle = site.pageTitleBase or "Public Sector AI Tools catalogue" %}
+  {% set suffix = "" %}
+
+  {# Prefer a “Browse by …: <facet>” suffix when available #}
+  {% if breadcrumbSectionText and breadcrumbCurrentText and breadcrumbSectionText.indexOf("Browse by") == 0 %}
+    {% set suffix = breadcrumbSectionText ~ ": " ~ breadcrumbCurrentText %}
+  {% elseif title %}
+    {% set suffix = title %}
+  {% endif %}
+
+  {{ baseTitle }}{% if suffix %} - {{ suffix }}{% endif %}
+{% endblock %}
 
 {% block head %}
   {{ super() }}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/assets/css/app.css">
+
+  {% if not useGovukBranding %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!--link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"-->
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Rethink+Sans:ital,wght@0,400..800;1,400..800&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  {% endif %}
 
   {# Placeholder for GA4 tagging (set site.ga4MeasurementId in src/_data/site.js) #}
   {% if site.ga4MeasurementId %}
@@ -54,11 +82,16 @@
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-two-thirds">
           <div class="govuk-header__logo">
-            <a href="https://www.gov.uk/" class="govuk-header__homepage-link">
-            {{ govukLogo({
-              classes: "govuk-header__logotype",
-              ariaLabelText: "GOV.UK"
-            }) }}
+            <a href="{{ (site.branding and site.branding.homepageUrl) or site.serviceUrl or '/' }}" class="govuk-header__homepage-link">
+
+            {% if useGovukBranding %}
+              {{ govukLogo({
+                classes: "govuk-header__logotype",
+                ariaLabelText: "GOV.UK"
+              }) }}
+            {% endif %}
+
+            <span class="govuk-header__product-name">AI Tools Catalogue</span>
             </a>
           </div>
           </div>
@@ -119,13 +152,27 @@
 {% endblock %}
 
 {% block footer %}
-  {{ govukFooter({
-    meta: {
-      items: [
-        { href: "/about/", text: "About the AI Tools Catalogue" }
-      ]
-    }
-  }) }}
+  {% if useGovukBranding %}
+    {{ govukFooter({
+      meta: {
+        items: [
+          { href: "/about/", text: "About" }
+        ]
+      }
+    }) }}
+  {% else %}
+    {# Keep GOV.UK footer structure/styling but remove all text/links. #}
+    <footer class="govuk-footer">
+      <div class="govuk-width-container">
+        <div class="govuk-footer__meta">
+          <div class="govuk-footer__meta-item govuk-footer__meta-item--grow"></div>
+          <div class="govuk-footer__meta-item"></div>
+        </div>
+      </div>
+    </footer>
+  {% endif %}
+
+
 {% endblock %}
 
 {% block bodyEnd %}
