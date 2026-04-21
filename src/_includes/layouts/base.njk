@@ -68,7 +68,7 @@
         actions: [
           { text: "Accept analytics cookies", type: "button", name: "cookies", value: "accept" },
           { text: "Reject analytics cookies", type: "button", name: "cookies", value: "reject" },
-          { text: "View cookies", href: "/about/#cookies" }
+          { text: "View cookies", href: "/about/#cookies"}
         ]
       }
       
@@ -127,7 +127,7 @@
 
   {{ govukPhaseBanner({
     tag: { text: "Alpha" },
-    html: "Please give feedback to the AI Enablers team."
+    html: "Please send feedback to <a href='https://www.peterkappus.com/contact' class='govuk-link'>Peter Kappus</a>."
   }) }}
 
   {# Breadcrumbs: prefer explicit `breadcrumbs` array; otherwise allow scalar breadcrumb fields. #}
@@ -166,7 +166,8 @@
       <div class="govuk-width-container">
         <div class="govuk-footer__meta">
           <div class="govuk-footer__meta-item govuk-footer__meta-item--grow"></div>
-          <div class="govuk-footer__meta-item"></div>
+          <div class="govuk-footer__meta-item"><a href="/about" class="govuk-link">About this tool</a>
+            </div>
         </div>
       </div>
     </footer>

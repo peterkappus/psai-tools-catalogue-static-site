@@ -14,7 +14,9 @@ breadcrumbs:
 
 <h1 class="govuk-heading-xl">About</h1>
 
-<p class="govuk-body">This site provides a catalogue of AI tools being used in the public sector. It's maintained by the AI Enablers team at GDS.</p>
+<p class="govuk-body">This site provides a catalogue of AI tools being used in the public sector using data provided by the Government Digital Service in their <a href="https://cddo-af.data.gov.uk/other/public_access/ai_tools_catalogue/AI-tools-catalogue-pilot.html" target="_blank" class="govuk-link">AI Tools Knowledge Graph</a>.</p>
+
+<p class="govuk-body">It was built by <a href="https://www.peterkappus.com/?utm_source=aitools" class="govuk-link">Peter Kappus</a> and the AI Enablers team at GDS using <a href="https://www.11ty.dev/" class="govuk-link" target="_blank">11ty</a> and the <a href="https://design-system.service.gov.uk/" class="govuk-link" target="_blank">GOV.UK Design System</a>.</p>
 
 <h2 class="govuk-heading-m" id="cookies">Cookies</h2>
 <p class="govuk-body">This site uses essential cookies to make the service work. It can also use analytics cookies if you accept them in the cookie banner.</p>
@@ -22,14 +24,17 @@ breadcrumbs:
 <h2 class="govuk-heading-m">Accessibility</h2>
 <p class="govuk-body">This service is designed to meet WCAG 2.2 AA.</p>
 
-<h2 class="govuk-heading-m">Data source</h2>
 
+<!--
+<h2 class="govuk-heading-m">Data source</h2>
 {% if tools.meta.source == "remote" %}
   <p class="govuk-body">This site was built using a CSV loaded from a remote URL.</p>
   <p class="govuk-body"><a class="govuk-link" href="{{ tools.meta.csvUrl }}">{{ tools.meta.csvUrl }}</a></p>
 {% else %}
   <p class="govuk-body">This site was built using the CSV stored in this repository. You can specify a remote CSV file at build time using an environment variable. Check the README for details.</p>
 {% endif %}
+-->
+
 
 </div>
 </div>
