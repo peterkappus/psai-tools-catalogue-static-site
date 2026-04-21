@@ -9,6 +9,7 @@
     "serve": "eleventy --serve --incremental",
     "watch:css": "sass --quiet-deps --load-path=. --load-path=node_modules --watch src/assets/scss:_site/assets/css",
     "build:css": "sass --quiet-deps --load-path=. --load-path=node_modules --no-source-map src/assets/scss:dist/assets/css",
+    "build:11ty": "eleventy",
     "build": "npm run clean && npm run build:css && npm run build:11ty",
     "dev": "npm-run-all -p watch:css serve"
   },
