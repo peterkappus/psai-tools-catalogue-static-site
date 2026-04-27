@@ -40,6 +40,13 @@ module.exports = function (eleventyConfig) {
     return dt.isValid ? dt.toFormat("d LLLL yyyy") : "";
   });
 
+  eleventyConfig.addFilter("formatDateShort", (value) => {
+    if (!value) return "";
+    const v = String(value);
+    const dt = DateTime.fromISO(v, { zone: "utc" });
+    return dt.isValid ? dt.toFormat("d MMMM yyyy") : "";
+  });
+
   eleventyConfig.addFilter("csvTags", (value) => {
     if (!value) return [];
     return String(value)

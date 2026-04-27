@@ -165,9 +165,12 @@
     <footer class="govuk-footer">
       <div class="govuk-width-container">
         <div class="govuk-footer__meta">
-          <div class="govuk-footer__meta-item govuk-footer__meta-item--grow"></div>
-          <div class="govuk-footer__meta-item"><a href="/about" class="govuk-link">About this tool</a>
-            </div>
+          <div class="govuk-footer__meta-item govuk-footer__meta-item--grow app-muted">
+            Updated {{ build.builtAt | formatDateShort }}
+          </div>
+          <div class="govuk-footer__meta-item">
+            <a href="/about/" class="govuk-link">About this tool</a>
+          </div>
         </div>
       </div>
     </footer>
