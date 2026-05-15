@@ -20,14 +20,10 @@ eleventyComputed:
 
 {% include "partials/browse-tabs.njk" %}
 
-<ul class="govuk-list">
-  {% for m in listing.entries %}
-    <li>
-      <a class="govuk-link" href="/browse/by-ai-method/{{ m.slug }}/">{{ m.name }}</a>
-      <span class="app-list-count">({{ m.tools | length }})</span>
-    </li>
-  {% endfor %}
-</ul>
+{% set facetEntries = listing.entries %}
+{% set facetBasePath = "/browse/by-ai-method/" %}
+{% set facetLabelColumn = "AI method" %}
+{% include "partials/facet-index-table.njk" %}
 
 {% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-ai-method/" } %}
 {% include "partials/pager.njk" %}

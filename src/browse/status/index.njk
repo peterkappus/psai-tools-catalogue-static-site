@@ -16,17 +16,14 @@ eleventyComputed:
 ---
 
 <h1 class="govuk-heading-xl">Browse by status</h1>
+<p class="govuk-body app-muted">Live, Pilot, Planned, or Retired. </p>
 
 {% include "partials/browse-tabs.njk" %}
 
-<ul class="govuk-list">
-  {% for s in listing.entries %}
-    <li>
-      <a class="govuk-link" href="/browse/by-status/{{ s.slug }}/">{{ s.name }}</a>
-      <span class="app-list-count">({{ s.tools | length }})</span>
-    </li>
-  {% endfor %}
-</ul>
+{% set facetEntries = listing.entries %}
+{% set facetBasePath = "/browse/by-status/" %}
+{% set facetLabelColumn = "Status" %}
+{% include "partials/facet-index-table.njk" %}
 
 {% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-status/" } %}
 {% include "partials/pager.njk" %}

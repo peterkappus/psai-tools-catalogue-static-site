@@ -19,14 +19,10 @@ eleventyComputed:
 
 {% include "partials/browse-tabs.njk" %}
 
-<ul class="govuk-list">
-  {% for u in listing.entries %}
-    <li>
-      <a class="govuk-link" href="/browse/by-usecase/{{ u.slug }}/">{{ u.name }}</a>
-      <span class="app-list-count">({{ u.tools | length }})</span>
-    </li>
-  {% endfor %}
-</ul>
+{% set facetEntries = listing.entries %}
+{% set facetBasePath = "/browse/by-usecase/" %}
+{% set facetLabelColumn = "Usecase" %}
+{% include "partials/facet-index-table.njk" %}
 
 {% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/browse/by-usecase/" } %}
 {% include "partials/pager.njk" %}

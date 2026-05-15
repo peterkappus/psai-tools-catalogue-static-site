@@ -11,7 +11,7 @@ breadcrumbs:
 
 <h1 class="govuk-heading-xl">{{ site.serviceName }}</h1>
 
-<p class="govuk-body app-muted">Use this tool to browse all known AI tools in use across the public sector. Entries are scraped via a weekly web search. Each entry links to a source URL for details.</p>
+<p class="govuk-body app-muted">This tool shows various AI-enabled tools being developed across the public sector. The data is pulled via a web search done 3 times per week and may not be 100% accurate. Always verify by visiting the source URL for each tool.</p>
 
 <!--{{ govukNotificationBanner({
   type: "important",
@@ -45,7 +45,7 @@ breadcrumbs:
   </ul>
 
   <div class="govuk-tabs__panel">
-    <p class="govuk-body">There are {{ countText }} in this catalogue.</p>
+    <p class="govuk-body">There are <b>{{ countText }}</b> in this catalogue.</p>
     <ul class="govuk-list govuk-list--bullet">
       <li><a class="govuk-link" href="/tools/">All tools (newest first)</a></li>
       <li><a class="govuk-link" href="/tools/a-z/">All tools (A to Z)</a></li>
