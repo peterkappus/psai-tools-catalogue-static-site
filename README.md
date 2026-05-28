@@ -1,4 +1,4 @@
-# AI tools catalogue (static)
+# Public sector AI tools catalogue (static)
 
 Static site built with [Eleventy (11ty)](https://www.11ty.dev/) using the GOV.UK Design System (Nunjucks components + GOV.UK styles).
 

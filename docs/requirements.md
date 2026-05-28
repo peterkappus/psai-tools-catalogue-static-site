@@ -4,7 +4,7 @@
 
 - Static site built with Eleventy using GOV.UK Design System Nunjucks and styles.
 - Crown header and GOV.UK service navigation:
-  - Service name: “AI Tools Catalogue”
+  - Service name: Public sector AI Tools Catalogue”
   - Link: About
 - WCAG 2.2 AA.
 - Dismissible cookie banner that remembers Accept/Reject.

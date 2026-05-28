@@ -1,8 +1,8 @@
 module.exports = {
-  serviceName: "AI tools catalogue",
+  serviceName: "Public sector AI tools catalogue",
   serviceUrl: "/",
   ga4MeasurementId: null,
-  pageTitleBase: "Public Sector AI Tools catalogue",
+  pageTitleBase: "Public Sector AI tools catalogue",
   branding: {
     // Set to true only if you're allowed to use GOV.UK branding assets.
     useGovukBranding: false,

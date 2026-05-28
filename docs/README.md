@@ -1,4 +1,4 @@
-## AI Tools Catalogue documentation
+## Public Sector AI Tools Catalogue documentation
 
 - `requirements.md`: product requirements and key behaviours
 - `tech-stack.md`: key libraries and architecture overview

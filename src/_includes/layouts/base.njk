@@ -59,6 +59,7 @@
   {{ super() }}
 
   {# The banner is shown/hidden at runtime based on cookie preferences. #}
+  <!--
   {{ govukCookieBanner({
     ariaLabel: "Cookies on " + site.serviceName,
     messages: [
@@ -74,6 +75,7 @@
       
     ]
   }) }}
+-->
 {% endblock %}
 
 {% block header %}
@@ -91,7 +93,7 @@
               }) }}
             {% endif %}
 
-            <span class="govuk-header__product-name">AI Tools Catalogue</span>
+            <span class="govuk-header__product-name">Public sector AI tools</span>
             </a>
           </div>
           </div>
@@ -113,7 +115,7 @@
   </div>
 
   {{ govukServiceNavigation({
-    serviceName: "AI Tools Catalogue",
+    serviceName: "Public sector AI tools catalogue",
     serviceUrl: "/",
     navigation: [
       { href: "/about/", text: "About", active: pagePath == "/about/" }
@@ -166,7 +168,7 @@
       <div class="govuk-width-container">
         <div class="govuk-footer__meta">
           <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
-            <a href="/about/" class="govuk-link">About this tool</a>
+            <a href="/about/" class="govuk-link">About</a>
           </div>
           <div class="govuk-footer__meta-item">
             <div class="app-muted">
