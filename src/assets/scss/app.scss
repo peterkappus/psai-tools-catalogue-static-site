@@ -15,6 +15,12 @@
   white-space: nowrap;
 }
 
+// Default paragraph styling (avoid needing class="govuk-body" everywhere).
+// Scope to main content so we don't affect header/footer/cookie banner.
+.govuk-main-wrapper p {
+  @extend .govuk-body;
+}
+
 .app-header__content {
   display: flex;
   justify-content: flex-end;
