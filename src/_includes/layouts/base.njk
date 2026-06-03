@@ -59,7 +59,6 @@
   {{ super() }}
 
   {# The banner is shown/hidden at runtime based on cookie preferences. #}
-  <!--
   {{ govukCookieBanner({
     ariaLabel: "Cookies on " + site.serviceName,
     messages: [
@@ -75,7 +74,6 @@
       
     ]
   }) }}
--->
 {% endblock %}
 
 {% block header %}
