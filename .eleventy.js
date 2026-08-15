@@ -25,15 +25,6 @@ module.exports = function (eleventyConfig) {
       "assets/govuk/govuk-frontend.min.js",
   });
 
-  // MOJ Frontend (optional components)
-  eleventyConfig.addPassthroughCopy({
-    "node_modules/@ministryofjustice/frontend/moj/assets": "assets/moj/assets",
-  });
-  eleventyConfig.addPassthroughCopy({
-    "node_modules/@ministryofjustice/frontend/moj/moj-frontend.min.js":
-      "assets/moj/moj-frontend.min.js",
-  });
-
   eleventyConfig.addFilter("slug", slugify);
 
   eleventyConfig.addFilter("formatDateUK", (value) => {
@@ -109,12 +100,11 @@ module.exports = function (eleventyConfig) {
     return items;
   });
 
-  // Make GOV.UK Frontend + MOJ Frontend Nunjucks macros available to templates.
+  // Make GOV.UK Frontend Nunjucks macros available to templates.
   const njkEnv = nunjucks.configure(
     [
       "src/_includes",
       "node_modules/govuk-frontend/dist",
-      "node_modules/@ministryofjustice/frontend",
     ],
     {
       autoescape: true,

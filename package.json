@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
-    "@ministryofjustice/frontend": "^9.0.0",
     "csv-parse": "^5.6.0",
     "govuk-frontend": "^6.0.0",
     "luxon": "^3.6.0"
