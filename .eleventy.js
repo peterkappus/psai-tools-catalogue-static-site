@@ -14,8 +14,11 @@ function slugify(input) {
 module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "dist/assets": "assets" });
   eleventyConfig.addPassthroughCopy({ "src/assets/js": "assets/js" });
+  eleventyConfig.addPassthroughCopy({ "src/assets/favicon.svg": "assets/favicon.svg" });
+  eleventyConfig.addWatchTarget("dist/assets/css");
+  // Copy GOV.UK images used by components, but not Transport font files.
   eleventyConfig.addPassthroughCopy({
-    "node_modules/govuk-frontend/dist/govuk/assets": "assets/govuk/assets",
+    "node_modules/govuk-frontend/dist/govuk/assets/images": "assets/govuk/assets/images",
   });
   eleventyConfig.addPassthroughCopy({
     "node_modules/govuk-frontend/dist/govuk/govuk-frontend.min.js":

@@ -31,17 +31,19 @@
   {{ baseTitle }}{% if suffix %} - {{ suffix }}{% endif %}
 {% endblock %}
 
+{# Do not use the GOV.UK crown favicon / manifest — this site is not hosted on GOV.UK. #}
+{% block headIcons %}
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+{% endblock %}
+
 {% block head %}
   {{ super() }}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/assets/css/app.css">
 
-  {% if not useGovukBranding %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!--link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"-->
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Rethink+Sans:ital,wght@0,400..800;1,400..800&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-  {% endif %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 
   {# Placeholder for GA4 tagging (set site.ga4MeasurementId in src/_data/site.js) #}
   {% if site.ga4MeasurementId %}
@@ -182,8 +184,11 @@
 {% endblock %}
 
 {% block bodyEnd %}
-  <script src="/assets/govuk/govuk-frontend.min.js"></script>
-  <script>window.GOVUKFrontend && window.GOVUKFrontend.initAll()</script>
+  {# GOV.UK Frontend v6 is an ES module (export …). Load with type="module". #}
+  <script type="module">
+    import { initAll } from "/assets/govuk/govuk-frontend.min.js";
+    initAll();
+  </script>
   <script>
     (function () {
       function readCookie(name) {

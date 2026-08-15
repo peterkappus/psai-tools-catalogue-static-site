@@ -2,6 +2,8 @@
 @use "govuk-frontend/dist/govuk/index" as govuk with (
   $govuk-assets-path: "/assets/govuk/assets/",
   $govuk-suppressed-warnings: ("pre-brand-colour"),
+  // This site is not hosted on GOV.UK, so do not use GDS Transport.
+  $govuk-font-family: ("Schibsted Grotesk", arial, sans-serif),
   $govuk-include-default-font-face: false
 );
 
@@ -54,24 +56,11 @@
   }
 }
 
-// Non‑GOV.UK hosting mode: use a generic sans-serif stack (e.g. Roboto).
-body.app-branding--nongovuk {
-  // GOV.UK Frontend sets font-family on many govuk-* classes; force inheritance.
- //font-family: "Public sans", "Arial", sans-serif !important;
- //font-family: "Rethink sans", "Arial", sans-serif !important;
- font-family: "Schibsted Grotesk", "Arial", sans-serif !important;
-  //font-family: "Roboto", "Arial", sans-serif !important;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-}
-
-body.app-branding--nongovuk [class^="govuk-"],
-body.app-branding--nongovuk [class*=" govuk-"] {
-  font-family: inherit;
-}
-
-
-body.app-branding--nongovuk [class*="product-name"] {
-  font-weight: bold;
+// Headings must stay bold even when body text is regular.
+.govuk-heading-xl,
+.govuk-heading-l,
+.govuk-heading-m,
+.govuk-heading-s,
+.govuk-header__product-name {
+  font-weight: 700;
 }

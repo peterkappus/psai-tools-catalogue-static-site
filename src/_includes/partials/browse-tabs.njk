@@ -1,4 +1,5 @@
-{# GOV.UK Tabs styling used for navigation between browse modes #}
+{# Tab *styling* only. Do not set data-module="govuk-tabs": that JS intercepts
+   clicks and preventDefault(), so these links would not navigate to new pages. #}
 {% set p = pagePath or "" %}
 {% set isMethod = p.indexOf("/browse/by-ai-method") == 0 %}
 {% set isOrg = p.indexOf("/browse/by-organisation") == 0 %}
@@ -6,7 +7,7 @@
 {% set isStatus = p.indexOf("/browse/by-status") == 0 %}
 {% set isUsecase = p.indexOf("/browse/by-usecase") == 0 %}
 
-<div class="govuk-tabs" data-module="govuk-tabs">
+<div class="govuk-tabs">
   <h2 class="govuk-tabs__title">Browse tools</h2>
   <ul class="govuk-tabs__list">
     <li class="govuk-tabs__list-item">
