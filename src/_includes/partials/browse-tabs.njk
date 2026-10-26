@@ -1,6 +1,8 @@
 {# Tab *styling* only. Do not set data-module="govuk-tabs": that JS intercepts
    clicks and preventDefault(), so these links would not navigate to new pages. #}
 {% set p = pagePath or "" %}
+{% set isLatest = p == "/tools/" or (p.indexOf("/tools/page/") == 0) %}
+{% set isAz = p.indexOf("/tools/a-z") == 0 %}
 {% set isMethod = p.indexOf("/browse/by-ai-method") == 0 %}
 {% set isOrg = p.indexOf("/browse/by-organisation") == 0 %}
 {% set isOrigin = p.indexOf("/browse/by-origin") == 0 %}
@@ -10,8 +12,11 @@
 <div class="govuk-tabs">
   <h2 class="govuk-tabs__title">Browse tools</h2>
   <ul class="govuk-tabs__list">
-    <li class="govuk-tabs__list-item">
-      <a class="govuk-tabs__tab" href="/">All tools</a>
+    <li class="govuk-tabs__list-item{% if isLatest %} govuk-tabs__list-item--selected{% endif %}">
+      <a class="govuk-tabs__tab" href="/tools/">Latest</a>
+    </li>
+    <li class="govuk-tabs__list-item{% if isAz %} govuk-tabs__list-item--selected{% endif %}">
+      <a class="govuk-tabs__tab" href="/tools/a-z/">A-Z</a>
     </li>
     <li class="govuk-tabs__list-item{% if isMethod %} govuk-tabs__list-item--selected{% endif %}">
       <a class="govuk-tabs__tab" href="/browse/by-ai-method/">AI methods</a>
@@ -30,4 +35,3 @@
     </li>
   </ul>
 </div>
-

@@ -18,13 +18,10 @@ eleventyComputed:
 <h1 class="govuk-heading-xl">All tools</h1>
 <p class="govuk-body app-muted">Sorted by date added (newest first), then tool name.</p>
 
+{% include "partials/browse-tabs.njk" %}
+
 {% set toolsList = listing.tools %}
 {% include "partials/tool-table.njk" %}
 
 {% set pager = { pageNumber: listing.pageNumber, totalPages: listing.totalPages, basePermalink: "/tools/" } %}
 {% include "partials/pager.njk" %}
-
-<p >
-  <a class="govuk-link" href="/tools/a-z/">View A to Z</a>
-</p>
-

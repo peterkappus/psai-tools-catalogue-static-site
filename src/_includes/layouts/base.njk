@@ -158,7 +158,8 @@
     {{ govukFooter({
       meta: {
         items: [
-          { href: "/about/", text: "About" }
+          { href: "/about/", text: "About" },
+          { href: site.reportProblemUrl, text: "Report a problem", attributes: { target: "_blank", rel: "noopener noreferrer" } }
         ]
       }
     }) }}
@@ -168,7 +169,14 @@
       <div class="govuk-width-container">
         <div class="govuk-footer__meta">
           <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
-            <a href="/about/" class="govuk-link">About this catalogue</a>
+            <ul class="govuk-footer__inline-list">
+              <li class="govuk-footer__inline-list-item">
+                <a href="/about/" class="govuk-link govuk-footer__link">About this catalogue</a>
+              </li>
+              <li class="govuk-footer__inline-list-item">
+                <a href="{{ site.reportProblemUrl }}" class="govuk-link govuk-footer__link" target="_blank" rel="noopener noreferrer">Report a problem</a>
+              </li>
+            </ul>
           </div>
           <div class="govuk-footer__meta-item">
             <div class="app-muted">

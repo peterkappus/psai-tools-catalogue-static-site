@@ -217,9 +217,14 @@ module.exports = async function () {
   // Ensure permalinks are unique even if tool_name + organisation repeats.
   // Keep the desired URL shape for the first occurrence; disambiguate duplicates
   // by appending the stable CSV row number.
+  // Empty tool_name + organisation would otherwise yield slug "" and collide with
+  // /tools/index.html (permalink "tools//index.html").
   const seenSlugs = new Set();
   for (const item of items) {
-    if (!item.slug) continue;
+    if (!item.slug) {
+      item.slug = `untitled-${item._row}`;
+      item.slug_base = item.slug;
+    }
     if (!seenSlugs.has(item.slug)) {
       seenSlugs.add(item.slug);
       continue;
