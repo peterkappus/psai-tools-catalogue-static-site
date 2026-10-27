@@ -5,8 +5,8 @@ pagination:
   alias: listing
 permalink: "{{ listing.permalink }}index.html"
 layout: layouts/base.njk
-title: "{{ listing.facetName }}"
 eleventyComputed:
+  title: "{{ listing.facetName }}"
   pagePath: "{{ listing.permalink }}"
   breadcrumbSectionText: "Browse by usecase"
   breadcrumbSectionHref: "/browse/by-usecase/"

@@ -5,8 +5,8 @@ pagination:
   alias: tool
 permalink: "tools/{{ tool.slug }}/index.html"
 layout: layouts/base.njk
-title: "{{ tool.tool_name }}"
 eleventyComputed:
+  title: "{{ tool.tool_name }}"
   pagePath: "/tools/{{ tool.slug }}/"
   breadcrumbs:
     - text: Home
